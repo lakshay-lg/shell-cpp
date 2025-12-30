@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <cstdlib>
 #include <filesystem>
+#include <set>
+#include <unistd.h>
 
 int main()
 {
@@ -77,9 +79,10 @@ int main()
           found = false;
           for (std::string &st : directories)
           {
-            if (std::filesystem::exists(st + '/' + commands[i]) && std::filesystem::is_regular_file(st + '/' + commands[i]))
+            std::string path = st + '/' + commands[i];
+            if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path) && (access(path.c_str(), X_OK) == 0))
             {
-              std::cout << commands[i] << " is " << st + '/' + commands[i] << std::endl;
+              std::cout << commands[i] << " is " << path << std::endl;
               found = true;
               break;
             }
