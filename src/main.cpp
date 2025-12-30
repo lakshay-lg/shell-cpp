@@ -100,7 +100,7 @@ int main()
       }
     }
 
-    bool foundInPath = false;
+    bool foundInPath = true;
     for (std::string &st : directories)
     {
       std::string path = st + '/' + commands[0];
@@ -119,7 +119,7 @@ int main()
       }
     }
 
-    if (!foundInPath)
+    if (!(foundInPath || availableCommands.count(commands[0])))
       std::cout << commands[0] << ": command not found" << std::endl;
   }
 }
