@@ -76,6 +76,17 @@ int main()
       else
       {
         std::error_code ec;
+        if (args[1][0] == '~')
+        {
+          std::filesystem::current_path(getenv("HOME"));
+          (args[1].length() > 2)
+              ? std::filesystem::current_path(getenv("HOME") + args[1].substr(1, args[1].length() - 1), ec)
+              : std::filesystem::current_path(getenv("HOME"));
+
+          if (ec)
+            std::cout << "cd: " << args[1] << ": No such file or directory" << std::endl;
+          continue;
+        }
         std::filesystem::current_path(args[1], ec);
 
         if (ec)
