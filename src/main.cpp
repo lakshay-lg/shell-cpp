@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include <cstdlib>
+#include <filesystem>
 
 int main()
 {
@@ -12,7 +14,7 @@ int main()
 
   while (1)
   {
-    // TODO: Uncomment the code below to pass the first stage
+    // Initial Prompt
     std::cout << "$ ";
 
     std::string command = "";
@@ -23,7 +25,7 @@ int main()
     std::stringstream ss(command);
     std::string temp;
 
-    // tracking available commands
+    // Tracking available commands
     std::unordered_set<std::string> availableCommands;
     availableCommands.insert("echo");
     availableCommands.insert("exit");
@@ -48,16 +50,43 @@ int main()
       std::cout << std::endl;
     }
 
+    // Getting the $PATH variable
+    const std::string path_value = getenv("PATH");
+    std::vector<std::string> directories;
+
+    std::stringstream dir(path_value);
+    std::string tempDir;
+
+    while (getline(dir, tempDir, ':'))
+    {
+      directories.push_back(tempDir);
+    }
+
     // TYPE
     if (commands[0] == "type")
     {
       for (int i = 1; i < commands.size(); i++)
       {
+        bool found = true;
         if (availableCommands.count(commands[i]))
         {
           std::cout << commands[i] << " is a shell builtin" << std::endl;
         }
         else
+        {
+          found = false;
+          for (std::string &st : directories)
+          {
+            if (std::filesystem::exists(st + '/' + commands[i]) && std::filesystem::is_regular_file(st + '/' + commands[i]))
+            {
+              std::cout << commands[i] << " is " << st + '/' + commands[i] << std::endl;
+              found = true;
+              break;
+            }
+          }
+        }
+
+        if (!found)
         {
           std::cout << commands[i] << ": not found" << std::endl;
         }
