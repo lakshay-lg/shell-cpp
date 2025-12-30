@@ -24,7 +24,11 @@ int main()
     std::string command = "";
     std::getline(std::cin, command);
 
-    // checking the operation in the command
+    // No Commands
+    if (command == "")
+      continue;
+
+    // Checking the operation in the command
     std::vector<std::string> commands;
     std::stringstream ss(command);
     std::string temp;
@@ -34,6 +38,7 @@ int main()
     availableCommands.insert("echo");
     availableCommands.insert("exit");
     availableCommands.insert("type");
+    availableCommands.insert("pwd");
 
     while (getline(ss, temp, ' '))
     {
@@ -52,6 +57,13 @@ int main()
         std::cout << commands[i] << " ";
       }
       std::cout << std::endl;
+    }
+
+    // PWD
+    if (commands[0] == "pwd")
+    {
+      std::string path = std::filesystem::current_path();
+      std::cout << path.substr(1, path.length() - 2) << std::endl;
     }
 
     // Getting the $PATH variable
@@ -100,6 +112,7 @@ int main()
       }
     }
 
+    // Running exec from Path if command not found
     bool foundInPath = false;
     if (!availableCommands.count(commands[0]))
     {
@@ -122,6 +135,7 @@ int main()
       }
     }
 
+    // notFound in Commands or $PATH
     if (!(foundInPath || availableCommands.count(commands[0])))
       std::cout << commands[0] << ": command not found" << std::endl;
   }
