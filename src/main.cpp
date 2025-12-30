@@ -113,7 +113,7 @@ int main()
         {
           args += commands[i];
         }
-        std::system((args).c_str());
+        std::system((commands[0] + " " + args).c_str());
         foundInPath = true;
         break;
       }
