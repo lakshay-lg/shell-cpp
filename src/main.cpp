@@ -15,7 +15,7 @@ int main()
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
-
+  std::string curPath = "";
   while (1)
   {
     // Initial Prompt
@@ -39,6 +39,7 @@ int main()
     availableCommands.insert("exit");
     availableCommands.insert("type");
     availableCommands.insert("pwd");
+    availableCommands.insert("cd");
 
     while (getline(ss, temp, ' '))
     {
@@ -62,14 +63,30 @@ int main()
     // PWD
     if (commands[0] == "pwd")
     {
-      std::string path = std::filesystem::current_path();
-      if (path.size() >= 2 && path.front() == '"' && path.back() == '"')
+      std::string scriptPath = curPath.empty() ? std::filesystem::current_path().string() : curPath;
+      if (scriptPath.size() >= 2 && scriptPath.front() == '"' && scriptPath.back() == '"')
       {
-        std::cout << path.substr(1, path.length() - 2) << std::endl;
+        std::cout << scriptPath.substr(1, scriptPath.length() - 2) << std::endl;
       }
       else
       {
-        std::cout << path << std::endl;
+        std::cout << scriptPath << std::endl;
+      }
+    }
+
+    // CD
+    if (commands[0] == "cd")
+    {
+      if (commands.size() > 1)
+      {
+        if (std::filesystem::exists(commands[1]) && std::filesystem::is_directory(commands[1]))
+        {
+          curPath = commands[1];
+        }
+        else
+        {
+          std::cout << "cd: " + commands[1] + ": No such file or directory" << std::endl;
+        }
       }
     }
 
@@ -79,7 +96,6 @@ int main()
 
     std::stringstream dir(path_value);
     std::string tempDir;
-
     while (getline(dir, tempDir, ':'))
     {
       directories.push_back(tempDir);
