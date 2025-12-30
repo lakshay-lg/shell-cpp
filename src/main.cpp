@@ -62,7 +62,15 @@ int main()
     // PWD
     if (commands[0] == "pwd")
     {
-      std::cout << std::filesystem::current_path() << std::endl;
+      std::string path = std::filesystem::current_path();
+      if (path.size() >= 2 && path.front() == '"' && path.back() == '"')
+      {
+        std::cout << path.substr(1, path.length() - 2) << std::endl;
+      }
+      else
+      {
+        std::cout << path << std::endl;
+      }
     }
 
     // Getting the $PATH variable
