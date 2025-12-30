@@ -100,7 +100,7 @@ int main()
       }
     }
 
-    bool foundInPath = true;
+    bool foundInPath = false;
     if (!availableCommands.count(commands[0]))
     {
       for (std::string &st : directories)
