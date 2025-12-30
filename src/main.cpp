@@ -111,7 +111,7 @@ int main()
         std::string args = "";
         for (int i = 1; i < commands.size(); i++)
         {
-          args += commands[i];
+          args += (commands[i] + ' ');
         }
         std::system((commands[0] + " " + args).c_str());
         foundInPath = true;
