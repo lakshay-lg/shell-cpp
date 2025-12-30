@@ -1,34 +1,108 @@
 [![progress-banner](https://backend.codecrafters.io/progress/shell/4fef01ae-4c16-4b3a-90a0-f6e32606126f)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
 
-This is a starting point for C++ solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+# CodeCrafters Shell (C++)
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+Build a minimal POSIX-like shell in C++ with a REPL that parses commands, handles builtins, and runs external programs. This repository is the implementation workspace for the CodeCrafters "Build Your Own Shell" challenge.
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+## What this project does
 
-# Passing the first stage
+This project implements a simple interactive shell:
 
-The entry point for your `shell` implementation is in `src/main.cpp`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+- Reads commands via a REPL prompt (`$ `)
+- Supports built-in commands: `echo`, `exit`, `type`, `pwd`, `cd`
+- Resolves executables using the `PATH` environment variable
+- Runs external programs with arguments
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
-```
+Core entry point: see `src/main.cpp`.
 
-Time to move on to the next stage!
+## Why this project is useful
 
-# Stage 2 & beyond
+- Learn shell internals: parsing, builtins, PATH resolution, process execution
+- Practice modern C++23 and standard library facilities
+- Ready-to-run local setup with CMake and vcpkg
 
-Note: This section is for stages 2 and beyond.
+## Getting started
 
-1. Ensure you have `cmake` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.cpp`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+### Prerequisites
+
+- CMake >= 3.13
+- A C++ compiler with C++23 support (e.g., GCC 13+, Clang 16+)
+- vcpkg installed and `VCPKG_ROOT` set (used by this project)
+- Linux or macOS recommended
+
+Optional dependencies:
+
+- `readline` (linked via vcpkg/toolchain)
+
+### Install dependencies
+
+- vcpkg manifest is in `vcpkg.json`
+- Configuration overrides in `vcpkg-configuration.json`
+
+Ensure `VCPKG_ROOT` is set in your environment.
+
+### Build
+
+You can use the helper script for local builds:
+
+- `./your_program.sh`
+
+This script:
+
+- Configures the CMake build using the vcpkg toolchain
+- Builds the `shell` executable into `build/`
+- Executes `build/shell`
+
+Alternatively, manual steps:
+
+- `cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake`
+- `cmake --build build`
+- `./build/shell`
+
+Project configuration: see `CMakeLists.txt`.
+
+### Usage
+
+Run the shell:
+
+- `./build/shell`
+
+Examples:
+
+- `echo hello world` → prints `hello world`
+- `pwd` → prints current directory
+- `cd /tmp` → changes directory
+- `type echo` → reports builtin/external resolution
+- `ls -la` → runs external program from `PATH`
+- `exit` → exits the shell
+
+Notes:
+
+- Commands are split on spaces (basic parsing). Quoting and redirection are not implemented.
+- External programs are discovered by scanning directories in `$PATH` and checking executability.
+
+## Where to get help
+
+- Challenge overview: link from the banner in the original scaffold or visit codecrafters.io
+- Code structure: `src/main.cpp`, `your_program.sh`, `CMakeLists.txt`
+- Open an issue in this repository for questions and support
+
+## Who maintains and contributes
+
+- Maintainer: you (the repository owner)
+- Contributions: pull requests are welcome
+  - Keep changes focused and include a clear description
+  - Add tests or usage examples where applicable
+
+## Project structure
+
+- `src/main.cpp` — shell REPL and builtin/external command handling
+- `your_program.sh` — local build/run helper
+- `CMakeLists.txt` — CMake configuration (C++23, readline link)
+- `vcpkg.json` — dependencies manifest
+- `vcpkg-configuration.json` — vcpkg configuration
+- `codecrafters.yml` — challenge integration config
+
+## License
+
+Refer to the repository's `LICENSE` file if present.
