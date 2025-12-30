@@ -101,21 +101,24 @@ int main()
     }
 
     bool foundInPath = true;
-    for (std::string &st : directories)
+    if (!availableCommands.count(commands[0]))
     {
-      std::string path = st + '/' + commands[0];
-
-      // check if file exist in this directory, ensuring it's a file and its executable
-      if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path) && (access(path.c_str(), X_OK) == 0))
+      for (std::string &st : directories)
       {
-        std::string args = "";
-        for (int i = 1; i < commands.size(); i++)
+        std::string path = st + '/' + commands[0];
+
+        // check if file exist in this directory, ensuring it's a file and its executable
+        if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path) && (access(path.c_str(), X_OK) == 0))
         {
-          args += (commands[i] + ' ');
+          std::string args = "";
+          for (int i = 1; i < commands.size(); i++)
+          {
+            args += (commands[i] + ' ');
+          }
+          std::system((commands[0] + " " + args).c_str());
+          foundInPath = true;
+          break;
         }
-        std::system((commands[0] + " " + args).c_str());
-        foundInPath = true;
-        break;
       }
     }
 
