@@ -1,11 +1,13 @@
 #include <iostream>
 #include <sstream>
+
 #include <vector>
 #include <string>
 #include <unordered_set>
-#include <cstdlib>
-#include <filesystem>
 #include <set>
+#include <cstdlib>
+
+#include <filesystem>
 #include <unistd.h>
 
 int main()
@@ -69,34 +71,55 @@ int main()
     {
       for (int i = 1; i < commands.size(); i++)
       {
-        bool found = true;
+        bool foundInPath = true;
         if (availableCommands.count(commands[i]))
         {
           std::cout << commands[i] << " is a shell builtin" << std::endl;
         }
         else
         {
-          found = false;
+          foundInPath = false;
           for (std::string &st : directories)
           {
             std::string path = st + '/' + commands[i];
+
+            // check if file exist in this directory, ensuring it's a file and its executable
             if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path) && (access(path.c_str(), X_OK) == 0))
             {
               std::cout << commands[i] << " is " << path << std::endl;
-              found = true;
+              foundInPath = true;
               break;
             }
           }
         }
 
-        if (!found)
+        if (!foundInPath)
         {
           std::cout << commands[i] << ": not found" << std::endl;
         }
       }
     }
 
-    if (!availableCommands.count(commands[0]))
+    bool foundInPath = false;
+    for (std::string &st : directories)
+    {
+      std::string path = st + '/' + commands[0];
+
+      // check if file exist in this directory, ensuring it's a file and its executable
+      if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path) && (access(path.c_str(), X_OK) == 0))
+      {
+        std::string args = "";
+        for (int i = 1; i < commands.size(); i++)
+        {
+          args += commands[i];
+        }
+        std::system((path + " " + args).c_str());
+        foundInPath = true;
+        break;
+      }
+    }
+
+    if (!foundInPath)
       std::cout << commands[0] << ": command not found" << std::endl;
   }
 }
