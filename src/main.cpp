@@ -9,13 +9,15 @@
 
 #include <filesystem>
 #include <unistd.h>
+#include <limits.h>
 
 int main()
 {
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
-  std::string curPath = "";
+
+  std::string curPath = std::filesystem::current_path().string();
   while (1)
   {
     // Initial Prompt
@@ -29,11 +31,11 @@ int main()
       continue;
 
     // Checking the operation in the command
-    std::vector<std::string> commands;
+    std::vector<std::string> args;
     std::stringstream ss(command);
     std::string temp;
 
-    // Tracking available commands
+    // Tracking available builtins
     std::unordered_set<std::string> availableCommands;
     availableCommands.insert("echo");
     availableCommands.insert("exit");
@@ -43,49 +45,42 @@ int main()
 
     while (getline(ss, temp, ' '))
     {
-      commands.push_back(temp);
+      args.push_back(temp);
     }
 
     // EXIT
-    if (commands[0] == "exit")
+    if (args[0] == "exit")
       break;
 
     // ECHO
-    if (commands[0] == "echo")
+    if (args[0] == "echo")
     {
-      for (int i = 1; i < commands.size(); i++)
+      for (int i = 1; i < args.size(); i++)
       {
-        std::cout << commands[i] << " ";
+        std::cout << args[i] << " ";
       }
       std::cout << std::endl;
     }
 
     // PWD
-    if (commands[0] == "pwd")
+    if (args[0] == "pwd")
     {
-      std::string scriptPath = curPath.empty() ? std::filesystem::current_path().string() : curPath;
-      if (scriptPath.size() >= 2 && scriptPath.front() == '"' && scriptPath.back() == '"')
-      {
-        std::cout << scriptPath.substr(1, scriptPath.length() - 2) << std::endl;
-      }
-      else
-      {
-        std::cout << scriptPath << std::endl;
-      }
+      std::cout << std::filesystem::current_path().string() << std::endl;
     }
 
     // CD
-    if (commands[0] == "cd")
+    if (args[0] == "cd")
     {
-      if (commands.size() > 1)
+      if (args.size() < 2)
+        continue;
+      else
       {
-        if (std::filesystem::exists(commands[1]) && std::filesystem::is_directory(commands[1]))
+        std::error_code ec;
+        std::filesystem::current_path(args[1], ec);
+
+        if (ec)
         {
-          curPath = commands[1];
-        }
-        else
-        {
-          std::cout << "cd: " + commands[1] + ": No such file or directory" << std::endl;
+          std::cout << "cd: " << args[1] << ": No such file or directory" << std::endl;
         }
       }
     }
@@ -102,26 +97,26 @@ int main()
     }
 
     // TYPE
-    if (commands[0] == "type")
+    if (args[0] == "type")
     {
-      for (int i = 1; i < commands.size(); i++)
+      for (int i = 1; i < args.size(); i++)
       {
         bool foundInPath = true;
-        if (availableCommands.count(commands[i]))
+        if (availableCommands.count(args[i]))
         {
-          std::cout << commands[i] << " is a shell builtin" << std::endl;
+          std::cout << args[i] << " is a shell builtin" << std::endl;
         }
         else
         {
           foundInPath = false;
           for (std::string &st : directories)
           {
-            std::string path = st + '/' + commands[i];
+            std::string path = st + '/' + args[i];
 
             // check if file exist in this directory, ensuring it's a file and its executable
             if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path) && (access(path.c_str(), X_OK) == 0))
             {
-              std::cout << commands[i] << " is " << path << std::endl;
+              std::cout << args[i] << " is " << path << std::endl;
               foundInPath = true;
               break;
             }
@@ -130,28 +125,31 @@ int main()
 
         if (!foundInPath)
         {
-          std::cout << commands[i] << ": not found" << std::endl;
+          std::cout << args[i] << ": not found" << std::endl;
         }
       }
     }
 
     // Running exec from Path if command not found
     bool foundInPath = false;
-    if (!availableCommands.count(commands[0]))
+    if (!availableCommands.count(args[0]))
     {
       for (std::string &st : directories)
       {
-        std::string path = st + '/' + commands[0];
+        std::string path = st + '/' + args[0];
 
         // check if file exist in this directory, ensuring it's a file and its executable
         if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path) && (access(path.c_str(), X_OK) == 0))
         {
-          std::string args = "";
-          for (int i = 1; i < commands.size(); i++)
+          // TESTING EXTERNAL SCRIPTS
+          // std::cout << "Found it: " << path << std::endl;
+
+          std::string argString = "";
+          for (int i = 0; i < args.size(); i++)
           {
-            args += (commands[i] + ' ');
+            argString += (args[i] + ' ');
           }
-          std::system((commands[0] + " " + args).c_str());
+          std::system(argString.c_str());
           foundInPath = true;
           break;
         }
@@ -159,7 +157,7 @@ int main()
     }
 
     // notFound in Commands or $PATH
-    if (!(foundInPath || availableCommands.count(commands[0])))
-      std::cout << commands[0] << ": command not found" << std::endl;
+    if (!(foundInPath || availableCommands.count(args[0])))
+      std::cout << args[0] << ": command not found" << std::endl;
   }
 }
