@@ -1,6 +1,4 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/4fef01ae-4c16-4b3a-90a0-f6e32606126f)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
-
-# CodeCrafters Shell (C++)
+# Unix-like Shell Implementation (C++)
 
 Build a minimal POSIX-like shell in C++ with a REPL that parses commands, handles builtins, and runs external programs. This repository is the implementation workspace for the CodeCrafters "Build Your Own Shell" challenge.
 
